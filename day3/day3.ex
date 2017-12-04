@@ -5,7 +5,7 @@ defmodule Day3 do
 
   def solve(pos) do
     {p,q} = get_coords(pos)
-    manhattan_distance(p,q)
+    manhattan_distance(p,q)    
   end
 
   def get_coords(pos) do
