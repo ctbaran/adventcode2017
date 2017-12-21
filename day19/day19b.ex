@@ -1,4 +1,4 @@
-defmodule Day19 do
+defmodule Day19B do
 
   def solve(input) do
     coords = File.stream!(input)
@@ -10,7 +10,7 @@ defmodule Day19 do
     {{max_x, _y}, _} = Enum.max_by(coords, fn {{x,_y}, _char} -> x end)
     {{_x, max_y}, _} = Enum.max_by(coords, fn {{_x,y}, _char} -> y end)
     map = Enum.reduce(coords, Map.new, fn {coords, val}, acc -> Map.put(acc, coords, val) end)
-    navigate(map, start, :down, max_x, max_y, [])
+    navigate(map, start, :down, max_x, max_y, 0)
   end
 
   def to_coords({string, y}) do
@@ -27,11 +27,11 @@ defmodule Day19 do
   def to_coord(coords, ?+), do: {coords, ?+}
   def to_coord(coords, char), do: {coords, char}
 
-  def navigate(map, current, dir, max_x, max_y, letters) do
+  def navigate(map, current, dir, max_x, max_y, steps) do
     case Map.get(map, current) do
-      ?+ -> turn(map, current, dir, max_x, max_y, letters)
-      nil -> Enum.reverse(letters)
-      char -> navigate(map, next(current, dir), dir, max_x, max_y, put_if_letter(letters, char))
+      ?+ -> turn(map, current, dir, max_x, max_y, steps)
+      nil -> steps
+      _ -> navigate(map, next(current, dir), dir, max_x, max_y, steps + 1)
     end
   end
 
@@ -40,17 +40,12 @@ defmodule Day19 do
   def next({x,y}, :up), do: {x, y-1}
   def next({x,y}, :down), do: {x, y+1}
 
-  def put_if_letter(letters, nil), do: letters
-  def put_if_letter(letters, ?-), do: letters
-  def put_if_letter(letters, ?|), do: letters
-  def put_if_letter(letters, letter), do: [letter|letters]
-
-  def turn(map, current, dir, max_x, max_y, letters) do
+  def turn(map, current, dir, max_x, max_y, steps) do
     new_dir = turn_right(dir)
     next_coord = next(current, new_dir)
     case Map.get(map, next_coord) do
-      nil -> turn(map, current, turn_left(dir), max_x, max_y, letters)
-      _ -> navigate(map, next_coord, new_dir, max_x, max_y, letters)
+      nil -> turn(map, current, turn_left(dir), max_x, max_y, steps)
+      _ -> navigate(map, next_coord, new_dir, max_x, max_y, steps + 1)
     end
   end
 
